@@ -3,6 +3,7 @@ const router = express.Router();
 
 // Rule-based generic chatbot matching
 const chatbotRules = [
+  { keywords: ['room', 'no', 'number', 'where', 'find'], response: 'To find a specific room number, please check the campus map at the main entrance or ask the front desk. For facility issues in a room, please use the Facilities tab.' },
   { keywords: ['lost', 'find', 'missing', 'id', 'wallet', 'phone'], response: 'To report a lost item or to find something you lost, please navigate to the "Lost & Found" section from the top menu, click "Find an Item", and fill out the details.' },
   { keywords: ['report', 'broken', 'issue', 'ac', 'fan', 'light', 'clean', 'washroom'], response: 'If you noticed a facility issue like a broken AC or a cleanliness problem, go to the "Facilities" section to submit a support ticket. Maintenance will be notified immediately.' },
   { keywords: ['login', 'account', 'register', 'password'], response: 'You can log into your account or register a new one by clicking the "Login" button on the top right. This is required to post lost items or facility issues.' },

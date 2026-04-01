@@ -77,5 +77,20 @@ router.put('/:id/status', requireAuth, async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
+// @route DELETE /api/items/:id
+// @desc Delete an item (Admin only)
+router.delete('/:id', requireAuth, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(401).json({ msg: 'Not authorized as admin' });
+    }
+    
+    await pool.query('DELETE FROM LostFoundItems WHERE id = ?', [req.params.id]);
+    res.json({ msg: 'Item deleted successfully' });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
 
 module.exports = router;

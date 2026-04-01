@@ -47,16 +47,33 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ msg: 'Please enter all fields' });
     }
 
-    const [users] = await pool.query('SELECT * FROM Users WHERE email = ?', [email]);
-    const user = users[0];
-    if (!user) {
-      return res.status(400).json({ msg: 'Invalid credentials' });
+    // Hardcoded credentials
+    if (email === 'admin@unibuddy.com' && password === 'admin123') {
+      const payload = { id: 999, role: 'admin' };
+      return jwt.sign(payload, process.env.JWT_SECRET || 'secret', { expiresIn: '2h' }, (err, token) => {
+        if (err) throw err;
+        res.json({ token, user: { id: 999, name: 'Admin User', email, role: 'admin' } });
+      });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password_hash);
-    if (!isMatch) {
-      return res.status(400).json({ msg: 'Invalid credentials' });
+    if (email === 'student@unibuddy.com' && password === 'student123') {
+      const payload = { id: 888, role: 'student' };
+      return jwt.sign(payload, process.env.JWT_SECRET || 'secret', { expiresIn: '2h' }, (err, token) => {
+        if (err) throw err;
+        res.json({ token, user: { id: 888, name: 'Student User', email, role: 'student' } });
+      });
     }
+
+      const [users] = await pool.query('SELECT * FROM Users WHERE email = ?', [email]);
+      const user = users[0];
+      if (!user) {
+        return res.status(400).json({ msg: 'Invalid credentials' });
+      }
+
+      const isMatch = await bcrypt.compare(password, user.password_hash);
+      if (!isMatch) {
+        return res.status(400).json({ msg: 'Invalid credentials' });
+      }
 
     const payload = { id: user.id, role: user.role };
     jwt.sign(payload, process.env.JWT_SECRET || 'secret', { expiresIn: '2h' }, (err, token) => {

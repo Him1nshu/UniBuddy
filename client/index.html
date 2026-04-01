@@ -17,10 +17,15 @@
                 <li><a href="#" class="active" data-page="home">Home</a></li>
                 <li><a href="#" data-page="lost-found">Lost & Found</a></li>
                 <li><a href="#" data-page="facilities">Facilities</a></li>
+                <li><a href="#" data-page="admin" id="nav-admin-link" style="display:none;">Admin</a></li>
                 <li><a href="#" data-page="auth" id="nav-auth-btn" class="btn btn-primary">Login</a></li>
             </ul>
         </div>
     </nav>
+
+    <div id="global-announcement" class="announcement-banner" style="display:none;">
+        <span id="global-announcement-text"></span>
+    </div>
 
     <main id="app-content">
         <!-- Content pages -->
@@ -35,11 +40,8 @@
                     </div>
                 </div>
                 <div class="hero-image">
-                    <!-- Abstract gradient art -->
-                    <div class="glass-orb"></div>
-                    <div class="glass-card">
-                        <p>✓ 15 Items Found this week<br>✓ 4 Issues Resolved recently</p>
-                    </div>
+                    <!-- Basic image placeholder instead of abstract art -->
+                    <img src="https://via.placeholder.com/300" alt="Campus Support Placeholder" style="border-radius:10px; border:2px solid #ccc;">
                 </div>
             </section>
         </div>
@@ -54,12 +56,13 @@
                 <h3 id="lf-form-title">Report Item</h3>
                 <input type="text" id="lf-title" placeholder="Title (e.g. Blue Backpack)" style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:none; background: rgba(0,0,0,0.2); color:white;">
                 <textarea id="lf-desc" placeholder="Description" style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:none; background: rgba(0,0,0,0.2); color:white;" rows="3"></textarea>
-                <select id="lf-cat" style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:none; background: rgba(0,0,0,0.2); color:white;">
-                    <option value="electronics" style="color:black">Electronics</option>
-                    <option value="documents" style="color:black">Documents</option>
-                    <option value="accessories" style="color:black">Accessories</option>
-                    <option value="other" style="color:black">Other</option>
+                <select id="lf-cat" style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:1px solid #ccc;">
+                    <option value="electronics">Electronics</option>
+                    <option value="documents">Documents</option>
+                    <option value="accessories">Accessories</option>
+                    <option value="other">Other</option>
                 </select>
+                <input type="file" id="lf-image" accept="image/*" style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:1px solid #ccc; background:#fff;">
                 <button class="btn btn-primary" onclick="app.submitLFItem()">Submit</button>
             </div>
             <div id="lf-items-list" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
@@ -94,6 +97,22 @@
                     <button class="btn btn-primary" style="flex:1" onclick="app.login()">Login</button>
                     <button class="btn btn-secondary" style="flex:1" onclick="app.register()">Register</button>
                 </div>
+            </div>
+        </div>
+
+        <div id="page-admin" class="page-view" style="display:none; padding: 2rem; max-width: 800px; margin: 0 auto;">
+            <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Admin Dashboard</h2>
+            <div style="background: var(--glass-bg); padding:20px; border-radius:10px; margin-bottom: 20px; border: 1px solid var(--glass-border);">
+                <h3>Post Global Announcement</h3>
+                <textarea id="admin-announcement-text" placeholder="Enter announcement..." style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:1px solid #ccc; background: rgba(255,255,255,0.8); color:var(--text-primary);" rows="3"></textarea>
+                <label style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                    <input type="checkbox" id="admin-announcement-active" checked> Set as Active Banner
+                </label>
+                <button class="btn btn-primary" onclick="app.submitAnnouncement()">Post Announcement</button>
+            </div>
+            <h3>Announcement History</h3>
+            <div id="admin-announcement-list" style="margin-top:10px; display:flex; flex-direction:column; gap:10px;">
+                <!-- Announcements loaded here -->
             </div>
         </div>
     </main>

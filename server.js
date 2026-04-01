@@ -2,23 +2,28 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
+const fs = require('fs');
 
-const mysql = require("mysql");
+const pool = require('./config/db');
 
-const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "unibuddy"
-});
-
-db.connect((err) => {
-  if (err) {
-    console.log(err);
-  } else {
-    console.log("DB Connected");
+// Ensure default users exist in the DB so foreign key constraints don't fail
+(async () => {
+  try {
+    await pool.query(`INSERT IGNORE INTO Users (id, name, email, password_hash, role) VALUES 
+      (999, 'Admin User', 'admin@unibuddy.com', 'hardcoded', 'admin'),
+      (888, 'Student User', 'student@unibuddy.com', 'hardcoded', 'student')
+    `);
+    console.log("Default users verified.");
+  } catch (err) {
+    console.error("Error creating default users:", err);
   }
-});
+})();
+
+// Ensure uploads directory exists to prevent multer crashes
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
+}
 
 dotenv.config();
 const app = express();
@@ -37,6 +42,7 @@ const facilityRoutes = require('./routes/facility');
 const chatbotRoutes = require('./routes/chatbot');
 const notifRoutes = require('./routes/notifications');
 const adminRoutes = require('./routes/admin');
+const announcementsRoutes = require('./routes/announcements');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/notifications', notifRoutes);
@@ -44,6 +50,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/items', itemsRoutes);
 app.use('/api/facility', facilityRoutes);
 app.use('/api/chatbot', chatbotRoutes);
+app.use('/api/announcements', announcementsRoutes);
 
 // Basic health check route
 app.get('/api/health', (req, res) => {

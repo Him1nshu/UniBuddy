@@ -1,0 +1,18 @@
+[dotenv@17.3.1] injecting env (6) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+Server listening on port 3000
+DB Connected
+Error: ENOENT: no such file or directory, open 'C:\Users\astng\Desktop\UniBuddy\uploads\1775018229694.jpg'
+Error: ENOENT: no such file or directory, open 'C:\Users\astng\Desktop\UniBuddy\uploads\1775018234072.jpg'
+Error: ENOENT: no such file or directory, open 'C:\Users\astng\Desktop\UniBuddy\uploads\1775018243228.jpg'
+Error: ENOENT: no such file or directory, open 'C:\Users\astng\Desktop\UniBuddy\uploads\1775018244020.jpg'
+Error: ENOENT: no such file or directory, open 'C:\Users\astng\Desktop\UniBuddy\uploads\1775018244240.jpg'
+Error: ENOENT: no such file or directory, open 'C:\Users\astng\Desktop\UniBuddy\uploads\1775018330849.jpg'
+Error: ENOENT: no such file or directory, open 'C:\Users\astng\Desktop\UniBuddy\uploads\1775018331628.jpg'
+Error: ENOENT: no such file or directory, open 'C:\Users\astng\Desktop\UniBuddy\uploads\1775018331788.jpg'
+Error: ENOENT: no such file or directory, open 'C:\Users\astng\Desktop\UniBuddy\uploads\1775018331973.jpg'
+Error: ENOENT: no such file or directory, open 'C:\Users\astng\Desktop\UniBuddy\uploads\1775018379721.jpg'
+Error: ENOENT: no such file or directory, open 'C:\Users\astng\Desktop\UniBuddy\uploads\1775018380523.jpg'
+Error: ENOENT: no such file or directory, open 'C:\Users\astng\Desktop\UniBuddy\uploads\1775018380696.jpg'
+Error: ENOENT: no such file or directory, open 'C:\Users\astng\Desktop\UniBuddy\uploads\1775018380914.jpg'
+Cannot add or update a child row: a foreign key constraint fails (`unibuddy`.`announcements`, CONSTRAINT `announcements_ibfk_1` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE CASCADE)
