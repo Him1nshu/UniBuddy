@@ -13,9 +13,29 @@ const pool = require('./config/db');
       (999, 'Admin User', 'admin@unibuddy.com', 'hardcoded', 'admin'),
       (888, 'Student User', 'student@unibuddy.com', 'hardcoded', 'student')
     `);
-    console.log("Default users verified.");
+    
+    // Create new tables for chatbot extensions
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS KnowledgeBase (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          filename VARCHAR(255) NOT NULL,
+          content TEXT NOT NULL,
+          uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS RoomInfo (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          type ENUM('room', 'helpline') NOT NULL,
+          keyword VARCHAR(100) NOT NULL,
+          details TEXT NOT NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    console.log("Database tables and default users verified.");
   } catch (err) {
-    console.error("Error creating default users:", err);
+    console.error("Error setting up database:", err);
   }
 })();
 

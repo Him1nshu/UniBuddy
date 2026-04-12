@@ -1,3 +1,27 @@
+// Global Google Auth Callback
+window.handleCredentialResponse = function(response) {
+    if(response.credential) {
+        fetch('/api/auth/google', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: response.credential })
+        }).then(res => res.json()).then(data => {
+            if (data.token) {
+                localStorage.setItem('token', data.token);
+                if (data.user && data.user.role) {
+                    localStorage.setItem('role', data.user.role);
+                }
+                document.getElementById('nav-auth-btn').innerText = 'Logout';
+                app.checkAdminStatus();
+                alert('Success! Logged in with Google.');
+                app.navigate('home');
+            } else {
+                alert(data.msg || 'Google Login Error');
+            }
+        }).catch(err => console.error(err));
+    }
+};
+
 const app = {
     init: function() {
         console.log('UniBuddy App Initialized');
@@ -336,6 +360,53 @@ const app = {
                 </div>
             `).join('');
         }).catch(err => console.error(err));
+    },
+
+    uploadNotice: function() {
+        const token = localStorage.getItem('token');
+        if (!token) return alert('Please login as admin first!');
+        
+        const fileInput = document.getElementById('admin-notice-pdf');
+        if (!fileInput.files[0]) return alert('Please select a PDF file');
+
+        const formData = new FormData();
+        formData.append('noticePdf', fileInput.files[0]);
+
+        fetch('/api/admin/upload-notice', {
+            method: 'POST',
+            headers: { 'x-auth-token': token },
+            body: formData
+        }).then(res => res.json()).then(data => {
+            alert(data.msg || 'Success');
+            fileInput.value = '';
+        }).catch(err => {
+            console.error(err);
+            alert('Error uploading notice.');
+        });
+    },
+
+    addRoomInfo: function() {
+        const token = localStorage.getItem('token');
+        if (!token) return alert('Please login as admin first!');
+
+        const type = document.getElementById('admin-room-type').value;
+        const keyword = document.getElementById('admin-room-keyword').value;
+        const details = document.getElementById('admin-room-details').value;
+
+        if (!keyword || !details) return alert('Please fill in keyword and details');
+
+        fetch('/api/admin/rooms', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+            body: JSON.stringify({ type, keyword, details })
+        }).then(res => res.json()).then(data => {
+            alert(data.msg || 'Success');
+            document.getElementById('admin-room-keyword').value = '';
+            document.getElementById('admin-room-details').value = '';
+        }).catch(err => {
+            console.error(err);
+            alert('Error adding room info.');
+        });
     }
 };
 

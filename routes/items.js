@@ -49,6 +49,34 @@ router.post('/', requireAuth, upload.single('image'), async (req, res) => {
       [title, description, category, type, imageUrl, req.user.id]
     );
     
+    // Auto-matching logic
+    const oppositeType = type === 'lost' ? 'found' : 'lost';
+    const [potentialMatches] = await pool.query(
+      'SELECT * FROM LostFoundItems WHERE type = ? AND category = ? AND status = "open" AND reported_by != ?',
+      [oppositeType, category, req.user.id]
+    );
+    
+    const words = `${title} ${description}`.toLowerCase().split(/[\s,.'"?]+/).filter(w => w.length > 3);
+    
+    for (let match of potentialMatches) {
+        const matchText = `${match.title} ${match.description}`.toLowerCase();
+        let matchScore = 0;
+        for (let w of words) {
+            if (matchText.includes(w)) matchScore++;
+        }
+        
+        // If there's a strong match (at least 1 significant word overlap within the same category)
+        if (matchScore >= 1) {
+            // Notify the person who reported the opposite item
+            const msgToOther = `Potential match alert! A new ${type} item "${title}" was reported that might match your ${oppositeType} item "${match.title}".`;
+            await pool.query('INSERT INTO Notifications (user_id, message) VALUES (?, ?)', [match.reported_by, msgToOther]);
+            
+            // Notify the current user
+            const msgToSelf = `Potential match alert! We found a ${oppositeType} item "${match.title}" that might match the item you just reported.`;
+            await pool.query('INSERT INTO Notifications (user_id, message) VALUES (?, ?)', [req.user.id, msgToSelf]);
+        }
+    }
+
     res.json({ id: result.insertId, msg: 'Item reported successfully' });
   } catch (err) {
     console.error(err.message);

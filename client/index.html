@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UniBuddy - Campus Support System</title>
     <!-- SEO Best Practices applied with proper meta tags and titles -->
-    <meta name="description" content="UniBuddy provides a smart campus support system including a lost and found mechanism, facility issue reporting, and instant AI chatbot assistance.">
+    <meta name="description"
+        content="UniBuddy provides a smart campus support system including a lost and found mechanism, facility issue reporting, and instant AI chatbot assistance.">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
+
 <body>
     <nav class="navbar">
         <div class="nav-container">
@@ -33,66 +37,104 @@
             <section class="hero-section">
                 <div class="hero-content">
                     <h2>Your Smart Campus Assistant</h2>
-                    <p>Report lost items, track facility issues, and get instant answers from our campus chatbot seamlessly.</p>
+                    <p>Report lost items, track facility issues, and get instant answers from our campus chatbot
+                        seamlessly.</p>
                     <div class="hero-buttons">
-                        <button class="btn btn-primary btn-lg" onclick="app.navigate('lost-found')">Find an Item</button>
-                        <button class="btn btn-secondary btn-lg" onclick="app.navigate('facilities')">Report Issue</button>
+                        <button class="btn btn-primary btn-lg" onclick="app.navigate('lost-found')">Find an
+                            Item</button>
+                        <button class="btn btn-secondary btn-lg" onclick="app.navigate('facilities')">Report
+                            Issue</button>
                     </div>
                 </div>
                 <div class="hero-image">
                     <!-- Basic image placeholder instead of abstract art -->
-                    <img src="https://via.placeholder.com/300" alt="Campus Support Placeholder" style="border-radius:10px; border:2px solid #ccc;">
+                    <img src="https://via.placeholder.com/300" alt="Campus Support Placeholder"
+                        style="border-radius:10px; border:2px solid #ccc;">
                 </div>
             </section>
         </div>
 
-        <div id="page-lost-found" class="page-view" style="display:none; padding: 2rem; max-width: 1200px; margin: 0 auto;">
+        <div id="page-lost-found" class="page-view"
+            style="display:none; padding: 2rem; max-width: 1200px; margin: 0 auto;">
             <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Lost & Found</h2>
             <div style="margin: 20px 0; display:flex; gap:10px;">
                 <button class="btn btn-primary" onclick="app.showReportForm('lost')">Report Lost Item</button>
                 <button class="btn btn-secondary" onclick="app.showReportForm('found')">Report Found Item</button>
             </div>
-            <div id="lf-form-container" style="display:none; background: var(--glass-bg); padding:20px; border-radius:10px; margin-bottom: 20px; border: 1px solid var(--glass-border);">
+            <div id="lf-form-container"
+                style="display:none; background: var(--glass-bg); padding:20px; border-radius:10px; margin-bottom: 20px; border: 1px solid var(--glass-border);">
                 <h3 id="lf-form-title">Report Item</h3>
-                <input type="text" id="lf-title" placeholder="Title (e.g. Blue Backpack)" style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:none; background: rgba(0,0,0,0.2); color:white;">
-                <textarea id="lf-desc" placeholder="Description" style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:none; background: rgba(0,0,0,0.2); color:white;" rows="3"></textarea>
-                <select id="lf-cat" style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:1px solid #ccc;">
+                <input type="text" id="lf-title" placeholder="Title (e.g. Blue Backpack)"
+                    style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:none; background: rgba(0,0,0,0.2); color:white;">
+                <textarea id="lf-desc" placeholder="Description"
+                    style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:none; background: rgba(0,0,0,0.2); color:white;"
+                    rows="3"></textarea>
+                <select id="lf-cat"
+                    style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:1px solid #ccc;">
                     <option value="electronics">Electronics</option>
                     <option value="documents">Documents</option>
                     <option value="accessories">Accessories</option>
                     <option value="other">Other</option>
                 </select>
-                <input type="file" id="lf-image" accept="image/*" style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:1px solid #ccc; background:#fff;">
+                <input type="file" id="lf-image" accept="image/*"
+                    style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:1px solid #ccc; background:#fff;">
                 <button class="btn btn-primary" onclick="app.submitLFItem()">Submit</button>
             </div>
-            <div id="lf-items-list" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+            <div id="lf-items-list"
+                style="display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
                 <!-- Items load here -->
             </div>
         </div>
 
-        <div id="page-facilities" class="page-view" style="display:none; padding: 2rem; max-width: 1200px; margin: 0 auto;">
+        <div id="page-facilities" class="page-view"
+            style="display:none; padding: 2rem; max-width: 1200px; margin: 0 auto;">
             <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Facility Issues</h2>
             <div style="margin: 20px 0;">
-                <button class="btn btn-primary" onclick="document.getElementById('fac-form-container').style.display='block'">Report New Issue</button>
+                <button class="btn btn-primary"
+                    onclick="document.getElementById('fac-form-container').style.display='block'">Report New
+                    Issue</button>
             </div>
-            <div id="fac-form-container" style="display:none; background: var(--glass-bg); padding:20px; border-radius:10px; margin-bottom: 20px; border: 1px solid var(--glass-border);">
+            <div id="fac-form-container"
+                style="display:none; background: var(--glass-bg); padding:20px; border-radius:10px; margin-bottom: 20px; border: 1px solid var(--glass-border);">
                 <h3>Report Issue</h3>
-                <input type="text" id="fac-title" placeholder="Title (e.g. Broken AC)" style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:none; background: rgba(0,0,0,0.2); color:white;">
-                <input type="text" id="fac-room" placeholder="Room Number (e.g. A201)" style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:none; background: rgba(0,0,0,0.2); color:white;">
-                <textarea id="fac-desc" placeholder="Description" style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:none; background: rgba(0,0,0,0.2); color:white;" rows="3"></textarea>
+                <input type="text" id="fac-title" placeholder="Title (e.g. Broken AC)"
+                    style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:none; background: rgba(0,0,0,0.2); color:white;">
+                <input type="text" id="fac-room" placeholder="Room Number (e.g. A201)"
+                    style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:none; background: rgba(0,0,0,0.2); color:white;">
+                <textarea id="fac-desc" placeholder="Description"
+                    style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:none; background: rgba(0,0,0,0.2); color:white;"
+                    rows="3"></textarea>
                 <button class="btn btn-primary" onclick="app.submitFacilityIssue()">Submit Report</button>
             </div>
-            <div id="fac-items-list" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+            <div id="fac-items-list"
+                style="display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
                 <!-- Issues load here -->
             </div>
         </div>
 
         <div id="page-auth" class="page-view" style="display:none; padding: 2rem; max-width: 400px; margin:4rem auto;">
             <h2 style="font-size: 2rem;">Login or Register</h2>
-            <div style="background: var(--glass-bg); padding:30px; border-radius:16px; margin-top:20px; border: 1px solid var(--glass-border); text-align:center;">
-                <input type="text" id="auth-name" placeholder="Name (for registration only)" style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:none; background: rgba(0,0,0,0.3); color:white;">
-                <input type="email" id="auth-email" placeholder="Email Address" style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:none; background: rgba(0,0,0,0.3); color:white;">
-                <input type="password" id="auth-pass" placeholder="Password" style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:none; background: rgba(0,0,0,0.3); color:white;">
+            <div
+                style="background: var(--glass-bg); padding:30px; border-radius:16px; margin-top:20px; border: 1px solid var(--glass-border); text-align:center;">
+                <!-- Google Sign-In Button -->
+                <div id="g_id_onload"
+                    data-client_id="542786994172-v2dtk8598rmuovsoh1t2scfasmko3ilk.apps.googleusercontent.com"
+                    data-context="signin" data-ux_mode="popup" data-callback="handleCredentialResponse"
+                    data-auto_prompt="false">
+                </div>
+                <div class="g_id_signin" data-type="standard" data-shape="rectangular" data-theme="outline"
+                    data-text="signin_with" data-size="large" data-logo_alignment="left"
+                    style="display: flex; justify-content: center; margin-bottom: 20px;">
+                </div>
+
+                <p style="margin: 10px 0; color: #ccc;">- OR (Manual Fallback) -</p>
+
+                <input type="text" id="auth-name" placeholder="Name (for registration only)"
+                    style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:none; background: rgba(0,0,0,0.3); color:white;">
+                <input type="email" id="auth-email" placeholder="Email Address"
+                    style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:none; background: rgba(0,0,0,0.3); color:white;">
+                <input type="password" id="auth-pass" placeholder="Password"
+                    style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:none; background: rgba(0,0,0,0.3); color:white;">
                 <div style="display:flex; gap:10px; margin-top:20px;">
                     <button class="btn btn-primary" style="flex:1" onclick="app.login()">Login</button>
                     <button class="btn btn-secondary" style="flex:1" onclick="app.register()">Register</button>
@@ -102,13 +144,41 @@
 
         <div id="page-admin" class="page-view" style="display:none; padding: 2rem; max-width: 800px; margin: 0 auto;">
             <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Admin Dashboard</h2>
-            <div style="background: var(--glass-bg); padding:20px; border-radius:10px; margin-bottom: 20px; border: 1px solid var(--glass-border);">
+            <div
+                style="background: var(--glass-bg); padding:20px; border-radius:10px; margin-bottom: 20px; border: 1px solid var(--glass-border);">
                 <h3>Post Global Announcement</h3>
-                <textarea id="admin-announcement-text" placeholder="Enter announcement..." style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:1px solid #ccc; background: rgba(255,255,255,0.8); color:var(--text-primary);" rows="3"></textarea>
+                <textarea id="admin-announcement-text" placeholder="Enter announcement..."
+                    style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:1px solid #ccc; background: rgba(255,255,255,0.8); color:var(--text-primary);"
+                    rows="3"></textarea>
                 <label style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
                     <input type="checkbox" id="admin-announcement-active" checked> Set as Active Banner
                 </label>
                 <button class="btn btn-primary" onclick="app.submitAnnouncement()">Post Announcement</button>
+            </div>
+
+            <div
+                style="background: var(--glass-bg); padding:20px; border-radius:10px; margin-bottom: 20px; border: 1px solid var(--glass-border);">
+                <h3>Chatbot Knowledge Base (Notices)</h3>
+                <p style="font-size:0.9rem; color:#ccc; margin-bottom:10px;">Upload a PDF to make it searchable by the
+                    chatbot.</p>
+                <input type="file" id="admin-notice-pdf" accept="application/pdf"
+                    style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:1px solid #ccc; background:#fff;">
+                <button class="btn btn-secondary" onclick="app.uploadNotice()">Upload Notice PDF</button>
+            </div>
+
+            <div
+                style="background: var(--glass-bg); padding:20px; border-radius:10px; margin-bottom: 20px; border: 1px solid var(--glass-border);">
+                <h3>Chatbot Details (Rooms & Helplines)</h3>
+                <select id="admin-room-type" style="width:100%; padding:12px; margin: 10px 0; border-radius:5px;">
+                    <option value="room">Room mapping</option>
+                    <option value="helpline">Helpline mapping</option>
+                </select>
+                <input type="text" id="admin-room-keyword" placeholder="Keyword (e.g. Prof. Smith)"
+                    style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:none; background: rgba(0,0,0,0.3); color:white;">
+                <textarea id="admin-room-details" placeholder="Details (e.g. Prof. Smith is located in A301)"
+                    style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:none; background: rgba(0,0,0,0.3); color:white;"
+                    rows="2"></textarea>
+                <button class="btn btn-secondary" onclick="app.addRoomInfo()">Add Info</button>
             </div>
             <h3>Announcement History</h3>
             <div id="admin-announcement-list" style="margin-top:10px; display:flex; flex-direction:column; gap:10px;">
@@ -134,4 +204,5 @@
 
     <script src="js/main.js"></script>
 </body>
+
 </html>

@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const pool = require('../config/db');
 
 // Rule-based generic chatbot matching
 const chatbotRules = [
@@ -13,13 +14,43 @@ const chatbotRules = [
 
 // @route POST /api/chatbot
 // @desc Get response from chatbot
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   const { message } = req.body;
   if (!message) {
     return res.status(400).json({ reply: 'Please send a message.' });
   }
 
   const lowerMsg = message.toLowerCase();
+
+  try {
+    // 1. Check Room/Helpline Info first
+    const [rooms] = await pool.query('SELECT * FROM RoomInfo');
+    for (let row of rooms) {
+      if (lowerMsg.includes(row.keyword.toLowerCase())) {
+        return res.json({ reply: row.details });
+      }
+    }
+
+    // 2. Check KnowledgeBase (Notices)
+    const [notices] = await pool.query('SELECT * FROM KnowledgeBase ORDER BY uploaded_at DESC');
+    const words = lowerMsg.split(/[\s,.'"?]+/).filter(w => w.length > 4); 
+    for (let notice of notices) {
+      const noticeContent = notice.content.toLowerCase();
+      let matchCount = 0;
+      for (let w of words) {
+        if (noticeContent.includes(w)) matchCount++;
+      }
+      if (matchCount > 0 && matchCount >= Math.min(2, words.length)) {
+          // Send a snippet of the PDF
+          const snippetMatch = notice.content.substring(0, 300);
+          return res.json({ reply: `According to a recent notice (${notice.filename}): "${snippetMatch}..."` });
+      }
+    }
+  } catch(err) {
+    console.error('Chatbot DB lookup error', err);
+  }
+
+  // 3. Fallback to generic rules
   let bestMatch = null;
   let maxScore = 0;
 
