@@ -14,13 +14,24 @@ const pool = require('./config/db');
       (888, 'Student User', 'student@unibuddy.com', 'hardcoded', 'student')
     `);
     
-    // Create new tables for chatbot extensions
+    // Create new tables for chatbot extensions and upvotes
     await pool.query(`
       CREATE TABLE IF NOT EXISTS KnowledgeBase (
           id INT AUTO_INCREMENT PRIMARY KEY,
           filename VARCHAR(255) NOT NULL,
           content TEXT NOT NULL,
           uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS FacilityUpvotes (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          issue_id INT NOT NULL,
+          user_id INT NOT NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (issue_id) REFERENCES FacilityIssues(id) ON DELETE CASCADE,
+          FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE,
+          UNIQUE KEY unique_upvote (issue_id, user_id)
       )
     `);
     await pool.query(`

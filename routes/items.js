@@ -67,13 +67,15 @@ router.post('/', requireAuth, upload.single('image'), async (req, res) => {
         
         // If there's a strong match (at least 1 significant word overlap within the same category)
         if (matchScore >= 1) {
-            // Notify the person who reported the opposite item
-            const msgToOther = `Potential match alert! A new ${type} item "${title}" was reported that might match your ${oppositeType} item "${match.title}".`;
-            await pool.query('INSERT INTO Notifications (user_id, message) VALUES (?, ?)', [match.reported_by, msgToOther]);
-            
-            // Notify the current user
-            const msgToSelf = `Potential match alert! We found a ${oppositeType} item "${match.title}" that might match the item you just reported.`;
-            await pool.query('INSERT INTO Notifications (user_id, message) VALUES (?, ?)', [req.user.id, msgToSelf]);
+            if (type === 'found') {
+                // Someone reported a found item. Notify the person who lost a matching item.
+                const msg = `Good news! A found item "${title}" was just reported that might match your lost item "${match.title}".`;
+                await pool.query('INSERT INTO Notifications (user_id, message) VALUES (?, ?)', [match.reported_by, msg]);
+            } else if (type === 'lost') {
+                // Someone reported a lost item. Notify them that a matching item has already been found.
+                const msg = `Good news! We already have a found item "${match.title}" in the system that might match the item you just reported as lost.`;
+                await pool.query('INSERT INTO Notifications (user_id, message) VALUES (?, ?)', [req.user.id, msg]);
+            }
         }
     }
 

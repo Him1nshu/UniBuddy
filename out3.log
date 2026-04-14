@@ -1,6 +1,0 @@
-[dotenv@17.3.1] injecting env (6) from .env -- tip: ⚙️  override existing env vars with { override: true }
-[dotenv@17.3.1] injecting env (0) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
-Server listening on port 3000
-DB Connected
-Cannot add or update a child row: a foreign key constraint fails (`unibuddy`.`announcements`, CONSTRAINT `announcements_ibfk_1` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE CASCADE)
-Cannot add or update a child row: a foreign key constraint fails (`unibuddy`.`announcements`, CONSTRAINT `announcements_ibfk_1` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE CASCADE)

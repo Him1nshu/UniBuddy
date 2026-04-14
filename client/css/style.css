@@ -102,6 +102,24 @@ body {
     font-size: 1.1rem;
 }
 
+/* Form Inputs */
+.form-input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 6px;
+    border: 1px solid var(--glass-border);
+    background: #fff;
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+}
+
 /* Hero Section */
 .hero-section {
     max-width: 1200px;

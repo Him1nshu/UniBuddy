@@ -1,33 +1,28 @@
-// Global Google Auth Callback
-window.handleCredentialResponse = function(response) {
-    if(response.credential) {
-        fetch('/api/auth/google', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token: response.credential })
-        }).then(res => res.json()).then(data => {
-            if (data.token) {
-                localStorage.setItem('token', data.token);
-                if (data.user && data.user.role) {
-                    localStorage.setItem('role', data.user.role);
-                }
-                document.getElementById('nav-auth-btn').innerText = 'Logout';
-                app.checkAdminStatus();
-                alert('Success! Logged in with Google.');
-                app.navigate('home');
-            } else {
-                alert(data.msg || 'Google Login Error');
-            }
-        }).catch(err => console.error(err));
-    }
-};
-
 const app = {
+    alert: function(msg) {
+        document.getElementById('custom-alert-msg').innerText = msg;
+        document.getElementById('custom-alert').style.display = 'flex';
+    },
+
     init: function() {
         console.log('UniBuddy App Initialized');
-        this.bindEvents();
-        this.checkAdminStatus();
-        this.loadActiveAnnouncement();
+        const token = localStorage.getItem('token');
+        if (!token) {
+            document.querySelector('.nav-links').style.display = 'none';
+            this.navigate('auth');
+        } else {
+            document.querySelector('.nav-links').style.display = 'flex';
+            document.getElementById('nav-auth-btn').innerText = 'Logout';
+            const userName = localStorage.getItem('name');
+            if (userName) document.getElementById('nav-user-name').innerText = `Hello, ${userName}`;
+            this.bindEvents();
+            this.checkAdminStatus();
+            this.loadActiveAnnouncement();
+            
+            // if we are on auth page initially but have token, go home
+            const page = document.querySelector('.page-view[style*="display: block"]');
+            if (!page || page.id === 'page-auth') this.navigate('home');
+        }
     },
 
     bindEvents: function() {
@@ -52,6 +47,14 @@ const app = {
     currentLFType: 'lost',
 
     navigate: function(page) {
+        if (page === 'auth' && localStorage.getItem('token')) {
+            // Logout logic
+            localStorage.clear();
+            document.getElementById('nav-user-name').innerText = '';
+            document.getElementById('nav-auth-btn').innerText = 'Login';
+            document.querySelector('.nav-links').style.display = 'none';
+        }
+
         document.querySelectorAll('.nav-links a').forEach(link => link.classList.remove('active'));
         const activeLink = document.querySelector(`.nav-links a[data-page="${page}"]`);
         if (activeLink) activeLink.classList.add('active');
@@ -69,10 +72,43 @@ const app = {
         if (page === 'admin') this.loadAdminAnnouncements();
     },
 
+    switchAuthTab: function(tab) {
+        const loginBtn = document.getElementById('tab-login');
+        const regBtn = document.getElementById('tab-register');
+        const loginCont = document.getElementById('auth-login-container');
+        const regCont = document.getElementById('auth-register-container');
+
+        if (tab === 'login') {
+            loginBtn.style.background = 'var(--accent-primary)';
+            loginBtn.style.color = '#fff';
+            loginBtn.style.boxShadow = '0 4px 10px rgba(0,0,0,0.2)';
+            regBtn.style.background = 'transparent';
+            regBtn.style.color = '#ccc';
+            regBtn.style.boxShadow = 'none';
+            loginCont.style.display = 'block';
+            regCont.style.display = 'none';
+        } else {
+            regBtn.style.background = 'var(--accent-primary)';
+            regBtn.style.color = '#fff';
+            regBtn.style.boxShadow = '0 4px 10px rgba(0,0,0,0.2)';
+            loginBtn.style.background = 'transparent';
+            loginBtn.style.color = '#ccc';
+            loginBtn.style.boxShadow = 'none';
+            loginCont.style.display = 'none';
+            regCont.style.display = 'block';
+        }
+    },
+
     auth: function(endpoint) {
-        const name = document.getElementById('auth-name').value;
-        const email = document.getElementById('auth-email').value;
-        const password = document.getElementById('auth-pass').value;
+        let name, email, password;
+        if (endpoint === 'register') {
+            name = document.getElementById('reg-name').value;
+            email = document.getElementById('reg-email').value;
+            password = document.getElementById('reg-pass').value;
+        } else {
+            email = document.getElementById('login-email').value;
+            password = document.getElementById('login-pass').value;
+        }
         
         const body = endpoint === 'register' ? { name, email, password } : { email, password };
         
@@ -81,19 +117,37 @@ const app = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
         }).then(res => res.json()).then(data => {
+            if (endpoint === 'register') {
+                if (data.msg === 'Registration complete. Please log in.') {
+                    app.alert(data.msg);
+                    this.switchAuthTab('login');
+                    document.getElementById('login-email').value = email;
+                    document.getElementById('login-pass').value = '';
+                } else {
+                    app.alert(data.msg || 'Error registering');
+                }
+                return;
+            }
+
             if (data.token) {
                 localStorage.setItem('token', data.token);
-                if (data.user && data.user.role) {
-                    localStorage.setItem('role', data.user.role);
+                if (data.user) {
+                    if (data.user.role) localStorage.setItem('role', data.user.role);
+                    if (data.user.name) {
+                        localStorage.setItem('name', data.user.name);
+                        document.getElementById('nav-user-name').innerText = `Hello, ${data.user.name}`;
+                    }
                 }
+                document.querySelector('.nav-links').style.display = 'flex';
                 document.getElementById('nav-auth-btn').innerText = 'Logout';
+                this.bindEvents();
                 this.checkAdminStatus();
-                alert('Success!');
+                this.loadActiveAnnouncement();
                 this.navigate('home');
             } else {
-                alert(data.msg || 'Error');
+                app.alert(data.msg || 'Error');
             }
-        });
+        }).catch(err => console.error(err));
     },
 
     login: function() { this.auth('login'); },
@@ -101,13 +155,31 @@ const app = {
 
     showReportForm: function(type) {
         this.currentLFType = type;
+        
+        // Toggle button active states visually
+        const lostBtn = document.getElementById('btn-report-lost');
+        const foundBtn = document.getElementById('btn-report-found');
+        
+        if (type === 'lost') {
+            lostBtn.className = 'btn btn-primary';
+            foundBtn.className = 'btn btn-secondary';
+        } else {
+            foundBtn.className = 'btn btn-primary';
+            lostBtn.className = 'btn btn-secondary';
+        }
+
+        const color = 'var(--accent-primary)';
         document.getElementById('lf-form-title').innerText = `Report ${type === 'lost' ? 'Lost' : 'Found'} Item`;
-        document.getElementById('lf-form-container').style.display = 'block';
+        document.getElementById('lf-form-title').style.color = color;
+        const container = document.getElementById('lf-form-container');
+        container.style.display = 'block';
+        container.style.border = `2px solid ${color}`;
+        container.style.boxShadow = `0 0 15px ${color}33`;
     },
 
     submitLFItem: function() {
         const token = localStorage.getItem('token');
-        if (!token) return alert('Please login first by clicking the Login button at the top!');
+        if (!token) return app.alert('Please login first by clicking the Login button at the top!');
         
         const formData = new FormData();
         formData.append('title', document.getElementById('lf-title').value);
@@ -125,8 +197,12 @@ const app = {
             headers: { 'x-auth-token': token }, // Content-Type is auto-set for FormData
             body: formData
         }).then(res => res.json()).then(data => {
-            alert('Item Reported!');
+            app.alert('Item Reported!');
             document.getElementById('lf-form-container').style.display = 'none';
+            // Clear inputs
+            document.getElementById('lf-title').value = '';
+            document.getElementById('lf-desc').value = '';
+            document.getElementById('lf-image').value = '';
             this.loadLFItems();
         });
     },
@@ -164,7 +240,7 @@ const app = {
 
     submitFacilityIssue: function() {
         const token = localStorage.getItem('token');
-        if (!token) return alert('Please login first by clicking the Login button at the top!');
+        if (!token) return app.alert('Please login first by clicking the Login button at the top!');
         
         fetch('/api/facility', {
             method: 'POST',
@@ -175,22 +251,35 @@ const app = {
                 description: document.getElementById('fac-desc').value
             })
         }).then(res => res.json()).then(data => {
-            alert('Facility issue reported successfully!');
+            app.alert('Facility issue reported successfully!');
             document.getElementById('fac-form-container').style.display = 'none';
+            // Clear inputs
+            document.getElementById('fac-title').value = '';
+            document.getElementById('fac-room').value = '';
+            document.getElementById('fac-desc').value = '';
             this.loadFacilities();
         });
     },
 
     loadFacilities: function() {
+        const token = localStorage.getItem('token');
+        if (!token) return;
         const isAdmin = localStorage.getItem('role') === 'admin';
-        fetch('/api/facility')
+        fetch('/api/facility', {
+            headers: { 'x-auth-token': token }
+        })
         .then(res => res.json())
         .then(issues => {
             const list = document.getElementById('fac-items-list');
-            if (issues.length === 0) list.innerHTML = '<p>No issues reported.</p>';
+            if (!Array.isArray(issues) || issues.length === 0) list.innerHTML = '<p>No issues reported.</p>';
             else list.innerHTML = issues.map(i => `
                 <div style="background:var(--glass-bg); padding:15px; border-radius:12px; border: 1px solid var(--glass-border);">
-                    <span style="background:${i.status==='pending'?'var(--warning)':(i.status==='resolved'?'var(--success)':'var(--accent-primary)')}; padding:4px 10px; border-radius:20px; font-size:12px; color:#000; font-weight:bold; letter-spacing: 0.5px;">${i.status.toUpperCase()}</span>
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <span style="background:${i.status==='pending'?'var(--warning)':(i.status==='resolved'?'var(--success)':'var(--accent-primary)')}; padding:4px 10px; border-radius:20px; font-size:12px; color:#000; font-weight:bold; letter-spacing: 0.5px;">${i.status.toUpperCase()}</span>
+                        <button onclick="app.upvoteIssue(${i.id})" style="background:${i.has_upvoted ? 'var(--accent-primary)' : 'transparent'}; color:${i.has_upvoted ? '#fff' : 'var(--text-primary)'}; border: 1px solid ${i.has_upvoted ? 'var(--accent-primary)' : 'var(--glass-border)'}; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 600; display:flex; gap:5px; align-items:center; transition: all 0.2s;">
+                            Upvote (${i.upvotes})
+                        </button>
+                    </div>
                     <h4 style="margin-top:15px; font-size:1.4rem;">${i.title}</h4>
                     <span style="font-size:12px; background: rgba(0,0,0,0.1); padding: 3px 6px; border-radius:4px; margin-top:5px; display:inline-block;">Room ${i.room}</span>
                     <p style="font-size:14px; color:var(--text-secondary); margin-top:10px;">${i.description}</p>
@@ -199,7 +288,7 @@ const app = {
                     </div>
                     ${isAdmin ? `
                     <div style="margin-top:10px; padding-top:10px; border-top:1px dashed #ccc; display:flex; gap:10px;">
-                        <select onchange="app.updateItemStatus(${i.id}, 'facility', this.value)" style="padding:5px; border-radius:4px;">
+                        <select onchange="app.updateItemStatus(${i.id}, 'facility', this.value)" class="form-input" style="padding:5px; border-radius:4px; margin:0;">
                             <option value="pending" ${i.status==='pending'?'selected':''}>Pending</option>
                             <option value="in_progress" ${i.status==='in_progress'?'selected':''}>In Progress</option>
                             <option value="resolved" ${i.status==='resolved'?'selected':''}>Resolved</option>
@@ -212,9 +301,22 @@ const app = {
         }).catch(err => console.error(err));
     },
 
+    upvoteIssue: function(id) {
+        const token = localStorage.getItem('token');
+        if (!token) return app.alert('Please login first!');
+        
+        // Optimistically reload UI quickly
+        fetch(`/api/facility/${id}/upvote`, {
+            method: 'POST',
+            headers: { 'x-auth-token': token }
+        }).then(res => res.json()).then(data => {
+            this.loadFacilities();
+        }).catch(err => console.error(err));
+    },
+
     updateItemStatus: function(id, type, status) {
         const token = localStorage.getItem('token');
-        if (!token) return alert('Not logged in!');
+        if (!token) return app.alert('Not logged in!');
         fetch(`/api/${type}/${id}/status`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
@@ -312,11 +414,11 @@ const app = {
 
     submitAnnouncement: function() {
         const token = localStorage.getItem('token');
-        if (!token) return alert('Please login as admin first!');
+        if (!token) return app.alert('Please login as admin first!');
         
         const message = document.getElementById('admin-announcement-text').value.trim();
         const isActive = document.getElementById('admin-announcement-active').checked;
-        if (!message) return alert('Please enter a message!');
+        if (!message) return app.alert('Please enter a message!');
         
         fetch('/api/admin/announcements', {
             method: 'POST',
@@ -326,13 +428,13 @@ const app = {
             if (!res.ok) throw new Error('Unassigned or unauthorized');
             return res.json();
         }).then(data => {
-            alert('Announcement posted successfully!');
+            app.alert('Announcement posted successfully!');
             document.getElementById('admin-announcement-text').value = '';
             this.loadAdminAnnouncements();
             this.loadActiveAnnouncement(); // Refresh banner immediately
         }).catch(err => {
             console.error(err);
-            alert('Error posting announcement. Ensure you have admin rights.');
+            app.alert('Error posting announcement. Ensure you have admin rights.');
         });
     },
 
@@ -364,10 +466,10 @@ const app = {
 
     uploadNotice: function() {
         const token = localStorage.getItem('token');
-        if (!token) return alert('Please login as admin first!');
+        if (!token) return app.alert('Please login as admin first!');
         
         const fileInput = document.getElementById('admin-notice-pdf');
-        if (!fileInput.files[0]) return alert('Please select a PDF file');
+        if (!fileInput.files[0]) return app.alert('Please select a PDF file');
 
         const formData = new FormData();
         formData.append('noticePdf', fileInput.files[0]);
@@ -377,35 +479,35 @@ const app = {
             headers: { 'x-auth-token': token },
             body: formData
         }).then(res => res.json()).then(data => {
-            alert(data.msg || 'Success');
+            app.alert(data.msg || 'Success');
             fileInput.value = '';
         }).catch(err => {
             console.error(err);
-            alert('Error uploading notice.');
+            app.alert('Error uploading notice.');
         });
     },
 
     addRoomInfo: function() {
         const token = localStorage.getItem('token');
-        if (!token) return alert('Please login as admin first!');
+        if (!token) return app.alert('Please login as admin first!');
 
         const type = document.getElementById('admin-room-type').value;
         const keyword = document.getElementById('admin-room-keyword').value;
         const details = document.getElementById('admin-room-details').value;
 
-        if (!keyword || !details) return alert('Please fill in keyword and details');
+        if (!keyword || !details) return app.alert('Please fill in keyword and details');
 
         fetch('/api/admin/rooms', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
             body: JSON.stringify({ type, keyword, details })
         }).then(res => res.json()).then(data => {
-            alert(data.msg || 'Success');
+            app.alert(data.msg || 'Success');
             document.getElementById('admin-room-keyword').value = '';
             document.getElementById('admin-room-details').value = '';
         }).catch(err => {
             console.error(err);
-            alert('Error adding room info.');
+            app.alert('Error adding room info.');
         });
     }
 };

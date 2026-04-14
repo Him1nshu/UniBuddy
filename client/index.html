@@ -10,7 +10,6 @@
         content="UniBuddy provides a smart campus support system including a lost and found mechanism, facility issue reporting, and instant AI chatbot assistance.">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 
 <body>
@@ -22,7 +21,10 @@
                 <li><a href="#" data-page="lost-found">Lost & Found</a></li>
                 <li><a href="#" data-page="facilities">Facilities</a></li>
                 <li><a href="#" data-page="admin" id="nav-admin-link" style="display:none;">Admin</a></li>
-                <li><a href="#" data-page="auth" id="nav-auth-btn" class="btn btn-primary">Login</a></li>
+                <li style="display:flex; align-items:center; gap:15px;">
+                    <span id="nav-user-name" style="color:var(--text-secondary); font-size:0.9rem; font-weight:600;"></span>
+                    <a href="#" data-page="auth" id="nav-auth-btn" class="btn btn-primary" style="padding: 6px 12px;">Login</a>
+                </li>
             </ul>
         </div>
     </nav>
@@ -47,9 +49,9 @@
                     </div>
                 </div>
                 <div class="hero-image">
-                    <!-- Basic image placeholder instead of abstract art -->
-                    <img src="https://via.placeholder.com/300" alt="Campus Support Placeholder"
-                        style="border-radius:10px; border:2px solid #ccc;">
+                    <!-- High quality campus image focusing on an indian university aesthetic -->
+                    <img src="https://images.unsplash.com/photo-1594822765809-5a58ad8d5272?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350" alt="Beautiful Campus"
+                        style="border-radius:12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 500px;">
                 </div>
             </section>
         </div>
@@ -58,26 +60,21 @@
             style="display:none; padding: 2rem; max-width: 1200px; margin: 0 auto;">
             <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Lost & Found</h2>
             <div style="margin: 20px 0; display:flex; gap:10px;">
-                <button class="btn btn-primary" onclick="app.showReportForm('lost')">Report Lost Item</button>
-                <button class="btn btn-secondary" onclick="app.showReportForm('found')">Report Found Item</button>
+                <button id="btn-report-lost" class="btn btn-primary" onclick="app.showReportForm('lost')">Report Lost Item</button>
+                <button id="btn-report-found" class="btn btn-secondary" onclick="app.showReportForm('found')">Report Found Item</button>
             </div>
             <div id="lf-form-container"
                 style="display:none; background: var(--glass-bg); padding:20px; border-radius:10px; margin-bottom: 20px; border: 1px solid var(--glass-border);">
                 <h3 id="lf-form-title">Report Item</h3>
-                <input type="text" id="lf-title" placeholder="Title (e.g. Blue Backpack)"
-                    style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:none; background: rgba(0,0,0,0.2); color:white;">
-                <textarea id="lf-desc" placeholder="Description"
-                    style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:none; background: rgba(0,0,0,0.2); color:white;"
-                    rows="3"></textarea>
-                <select id="lf-cat"
-                    style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:1px solid #ccc;">
+                <input type="text" id="lf-title" placeholder="Title (e.g. Blue Backpack)" class="form-input">
+                <textarea id="lf-desc" placeholder="Description" class="form-input" rows="3"></textarea>
+                <select id="lf-cat" class="form-input">
                     <option value="electronics">Electronics</option>
                     <option value="documents">Documents</option>
                     <option value="accessories">Accessories</option>
                     <option value="other">Other</option>
                 </select>
-                <input type="file" id="lf-image" accept="image/*"
-                    style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:1px solid #ccc; background:#fff;">
+                <input type="file" id="lf-image" accept="image/*" class="form-input">
                 <button class="btn btn-primary" onclick="app.submitLFItem()">Submit</button>
             </div>
             <div id="lf-items-list"
@@ -97,13 +94,9 @@
             <div id="fac-form-container"
                 style="display:none; background: var(--glass-bg); padding:20px; border-radius:10px; margin-bottom: 20px; border: 1px solid var(--glass-border);">
                 <h3>Report Issue</h3>
-                <input type="text" id="fac-title" placeholder="Title (e.g. Broken AC)"
-                    style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:none; background: rgba(0,0,0,0.2); color:white;">
-                <input type="text" id="fac-room" placeholder="Room Number (e.g. A201)"
-                    style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:none; background: rgba(0,0,0,0.2); color:white;">
-                <textarea id="fac-desc" placeholder="Description"
-                    style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:none; background: rgba(0,0,0,0.2); color:white;"
-                    rows="3"></textarea>
+                <input type="text" id="fac-title" placeholder="Title (e.g. Broken AC)" class="form-input">
+                <input type="text" id="fac-room" placeholder="Room Number (e.g. A201)" class="form-input">
+                <textarea id="fac-desc" placeholder="Description" class="form-input" rows="3"></textarea>
                 <button class="btn btn-primary" onclick="app.submitFacilityIssue()">Submit Report</button>
             </div>
             <div id="fac-items-list"
@@ -113,32 +106,25 @@
         </div>
 
         <div id="page-auth" class="page-view" style="display:none; padding: 2rem; max-width: 400px; margin:4rem auto;">
-            <h2 style="font-size: 2rem;">Login or Register</h2>
-            <div
-                style="background: var(--glass-bg); padding:30px; border-radius:16px; margin-top:20px; border: 1px solid var(--glass-border); text-align:center;">
-                <!-- Google Sign-In Button -->
-                <div id="g_id_onload"
-                    data-client_id="542786994172-v2dtk8598rmuovsoh1t2scfasmko3ilk.apps.googleusercontent.com"
-                    data-context="signin" data-ux_mode="popup" data-callback="handleCredentialResponse"
-                    data-auto_prompt="false">
-                </div>
-                <div class="g_id_signin" data-type="standard" data-shape="rectangular" data-theme="outline"
-                    data-text="signin_with" data-size="large" data-logo_alignment="left"
-                    style="display: flex; justify-content: center; margin-bottom: 20px;">
-                </div>
-
-                <p style="margin: 10px 0; color: #ccc;">- OR (Manual Fallback) -</p>
-
-                <input type="text" id="auth-name" placeholder="Name (for registration only)"
-                    style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:none; background: rgba(0,0,0,0.3); color:white;">
-                <input type="email" id="auth-email" placeholder="Email Address"
-                    style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:none; background: rgba(0,0,0,0.3); color:white;">
-                <input type="password" id="auth-pass" placeholder="Password"
-                    style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:none; background: rgba(0,0,0,0.3); color:white;">
-                <div style="display:flex; gap:10px; margin-top:20px;">
-                    <button class="btn btn-primary" style="flex:1" onclick="app.login()">Login</button>
-                    <button class="btn btn-secondary" style="flex:1" onclick="app.register()">Register</button>
-                </div>
+            
+            <div style="display:flex; justify-content:center; gap:0px; margin-bottom:20px; background: rgba(255,255,255,0.1); border-radius:8px; padding: 5px;">
+                <button id="tab-login" class="btn btn-primary" style="flex:1; border-radius: 6px; background: var(--accent-primary); border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.2);" onclick="app.switchAuthTab('login')">Log In</button>
+                <button id="tab-register" class="btn btn-secondary" style="flex:1; border-radius: 6px; background: transparent; border: none; color: #ccc;" onclick="app.switchAuthTab('register')">Create Account</button>
+            </div>
+            
+            <div id="auth-login-container" style="background: var(--glass-bg); padding:30px; border-radius:16px; border: 1px solid var(--glass-border); text-align:center;">
+                <h2 style="font-size: 1.8rem; margin-bottom: 20px;">Welcome Back</h2>
+                <input type="email" id="login-email" placeholder="Email Address" class="form-input">
+                <input type="password" id="login-pass" placeholder="Password" class="form-input">
+                <button class="btn btn-primary" style="width:100%; margin-top:20px; font-size:1.1rem; padding:12px;" onclick="app.login()">Login</button>
+            </div>
+            
+            <div id="auth-register-container" style="display:none; background: var(--glass-bg); padding:30px; border-radius:16px; border: 1px solid var(--glass-border); text-align:center;">
+                <h2 style="font-size: 1.8rem; margin-bottom: 20px;">Join UniBuddy</h2>
+                <input type="text" id="reg-name" placeholder="Full Name" class="form-input">
+                <input type="email" id="reg-email" placeholder="Email Address" class="form-input">
+                <input type="password" id="reg-pass" placeholder="Create Password" class="form-input">
+                <button class="btn btn-primary" style="width:100%; margin-top:20px; font-size:1.1rem; padding:12px; background: var(--success);" onclick="app.register()">Create Account</button>
             </div>
         </div>
 
@@ -169,15 +155,12 @@
             <div
                 style="background: var(--glass-bg); padding:20px; border-radius:10px; margin-bottom: 20px; border: 1px solid var(--glass-border);">
                 <h3>Chatbot Details (Rooms & Helplines)</h3>
-                <select id="admin-room-type" style="width:100%; padding:12px; margin: 10px 0; border-radius:5px;">
+                <select id="admin-room-type" class="form-input">
                     <option value="room">Room mapping</option>
                     <option value="helpline">Helpline mapping</option>
                 </select>
-                <input type="text" id="admin-room-keyword" placeholder="Keyword (e.g. Prof. Smith)"
-                    style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:none; background: rgba(0,0,0,0.3); color:white;">
-                <textarea id="admin-room-details" placeholder="Details (e.g. Prof. Smith is located in A301)"
-                    style="width:100%; padding:12px; margin: 10px 0; border-radius:5px; border:none; background: rgba(0,0,0,0.3); color:white;"
-                    rows="2"></textarea>
+                <input type="text" id="admin-room-keyword" placeholder="Keyword (e.g. Prof. Smith)" class="form-input">
+                <textarea id="admin-room-details" placeholder="Details (e.g. Prof. Smith is located in A301)" class="form-input" rows="2"></textarea>
                 <button class="btn btn-secondary" onclick="app.addRoomInfo()">Add Info</button>
             </div>
             <h3>Announcement History</h3>
@@ -186,6 +169,17 @@
             </div>
         </div>
     </main>
+
+    <!-- Custom Alert Modal -->
+    <div id="custom-alert" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; justify-content:center; align-items:center;">
+        <div style="background:var(--glass-bg); padding:25px; border-radius:12px; border:1px solid var(--glass-border); text-align:center; min-width:300px;">
+            <h3 style="margin-top:0; color:var(--text-primary);">UniBuddy</h3>
+            <p id="custom-alert-msg" style="margin:15px 0; color:var(--text-secondary);"></p>
+            <div id="custom-alert-buttons" style="display:flex; justify-content:center; gap:10px;">
+                <button class="btn btn-primary" onclick="document.getElementById('custom-alert').style.display='none'">OK</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Chatbot Widget -->
     <div class="chatbot-widget collapsed" id="chatbot-widget">
