@@ -5,11 +5,14 @@ const requireAuth = require('../middleware/auth');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+
 const pdfParse = require('pdf-parse');
+
+const uploadsDir = path.join(__dirname, '..', 'uploads');
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'uploads/');
+    cb(null, uploadsDir);
   },
   filename: function (req, file, cb) {
     cb(null, 'notice_' + Date.now() + path.extname(file.originalname));
@@ -139,27 +142,38 @@ router.delete('/rooms/:id', requireAuth, requireAdmin, async (req, res) => {
 
 // @route POST /api/admin/upload-notice
 // @desc Upload a PDF notice to the knowledge base
-router.post('/upload-notice', requireAuth, requireAdmin, upload.single('noticePdf'), async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ msg: 'No file uploaded' });
+router.post('/upload-notice', requireAuth, requireAdmin, (req, res) => {
+  upload.single('noticePdf')(req, res, async (uploadErr) => {
+    if (uploadErr) {
+      console.error('Multer upload error:', uploadErr);
+      return res.status(400).json({ msg: `File upload failed: ${uploadErr.message}` });
     }
 
-    const dataBuffer = fs.readFileSync(req.file.path);
-    const data = await pdfParse(dataBuffer);
-    const content = data.text.trim();
-    
-    if (!content) {
-      return res.status(400).json({ msg: 'Could not extract text from PDF.' });
-    }
+    try {
+      if (!req.file) {
+        return res.status(400).json({ msg: 'No file uploaded. Please select a PDF.' });
+      }
 
-    await pool.query('INSERT INTO KnowledgeBase (filename, content) VALUES (?, ?)', [req.file.originalname, content]);
-    
-    res.json({ msg: 'PDF text parsed and added to Knowledge Base correctly.' });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
-  }
+      const filePath = path.join(uploadsDir, req.file.filename);
+      const dataBuffer = fs.readFileSync(filePath);
+      const data = await pdfParse(dataBuffer);
+      const content = (data.text || '').trim();
+
+      if (!content) {
+        return res.status(400).json({ msg: 'Could not extract text from this PDF. Make sure it is not a scanned image.' });
+      }
+
+      await pool.query(
+        'INSERT INTO KnowledgeBase (filename, content) VALUES (?, ?)',
+        [req.file.originalname, content]
+      );
+
+      res.json({ msg: `"${req.file.originalname}" uploaded and indexed successfully.` });
+    } catch (err) {
+      console.error('PDF parse error:', err);
+      res.status(500).json({ msg: `Error processing PDF: ${err.message}` });
+    }
+  });
 });
 
 module.exports = router;

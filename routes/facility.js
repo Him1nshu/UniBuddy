@@ -30,14 +30,14 @@ router.get('/', requireAuth, async (req, res) => {
 // @desc Report a new facility issue
 router.post('/', requireAuth, async (req, res) => {
   try {
-    const { title, room, description } = req.body;
+    const { title, room, description, category = 'other', severity = 'medium' } = req.body;
     if (!title || !room || !description) {
       return res.status(400).json({ msg: 'Please provide all required fields' });
     }
 
     const [result] = await pool.query(
-      'INSERT INTO FacilityIssues (title, room, description, reported_by) VALUES (?, ?, ?, ?)',
-      [title, room, description, req.user.id]
+      'INSERT INTO FacilityIssues (title, room, description, category, severity, reported_by) VALUES (?, ?, ?, ?, ?, ?)',
+      [title, room, description, category, severity, req.user.id]
     );
     
     res.json({ id: result.insertId, msg: 'Issue reported successfully' });

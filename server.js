@@ -14,7 +14,7 @@ const pool = require('./config/db');
       (888, 'Student User', 'student@unibuddy.com', 'hardcoded', 'student')
     `);
     
-    // Create new tables for chatbot extensions and upvotes
+    // Ensure all extension tables exist
     await pool.query(`
       CREATE TABLE IF NOT EXISTS KnowledgeBase (
           id INT AUTO_INCREMENT PRIMARY KEY,
@@ -43,6 +43,24 @@ const pool = require('./config/db');
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS Notifications (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          user_id INT NOT NULL,
+          message TEXT NOT NULL,
+          is_read BOOLEAN DEFAULT FALSE,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE
+      )
+    `);
+
+    // Migrate FacilityIssues: add category and severity columns if missing
+    try {
+      await pool.query(`ALTER TABLE FacilityIssues ADD COLUMN category ENUM('electrical','plumbing','cleanliness','infrastructure','other') DEFAULT 'other'`);
+    } catch (_) { /* column already exists */ }
+    try {
+      await pool.query(`ALTER TABLE FacilityIssues ADD COLUMN severity ENUM('low','medium','high') DEFAULT 'medium'`);
+    } catch (_) { /* column already exists */ }
 
     console.log("Database tables and default users verified.");
   } catch (err) {
