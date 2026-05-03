@@ -28,3 +28,6 @@ uploads/
 # Mac/Windows OS files
 .DS_Store
 Thumbs.db
+
+
+.docs
