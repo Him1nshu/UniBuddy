@@ -45,7 +45,7 @@ A full-stack web application that helps university students report lost items, r
 
 ### Prerequisites
 - **Node.js** (v16 or higher recommended)
-- **MySQL** server running locally (e.g. via XAMPP, MAMP, or a standalone MySQL install)
+- **MySQL** server running locally (e.g. via XAMPP, or a standalone MySQL install)
 
 ### 1 – Database Setup
 
